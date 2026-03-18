@@ -1,0 +1,8 @@
+name: GuiLib
+version: '1.0-SNAPSHOT'
+main: net.developertobi.guilib.bukkit.GuiLibBukkit
+api-version: "1.21.11"
+authors:
+  - TGamings
+depend:
+  - dependencies

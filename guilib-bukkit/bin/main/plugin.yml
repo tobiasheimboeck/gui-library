@@ -1,0 +1,8 @@
+name: inventory-library
+version: '1.0-SNAPSHOT'
+main: net.developertobi.inventorylib.bukkit.GuiInventoryBukkit
+api-version: "1.21.11"
+authors:
+  - TGamings
+depend:
+  - dependencies
