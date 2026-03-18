@@ -4,9 +4,6 @@ import net.developertobi.guilib.api.item.GuiPos;
 
 public final class MathUtils {
 
-    private MathUtils() {
-    }
-
     public static GuiPos slotToPosition(int slot, int columns) {
         return GuiPos.of(slot / columns, slot % columns);
     }

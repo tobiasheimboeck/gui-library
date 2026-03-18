@@ -15,9 +15,6 @@ import org.bukkit.inventory.ItemStack;
  */
 public final class GuiHelper {
 
-    private GuiHelper() {
-    }
-
     // --- GUI view operations ---
 
     public static void openStaticGui(Player holder, Component title, Gui provider) {

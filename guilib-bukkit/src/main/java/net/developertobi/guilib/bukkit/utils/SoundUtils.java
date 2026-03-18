@@ -6,9 +6,6 @@ import org.bukkit.entity.Player;
 
 public final class SoundUtils {
 
-    private SoundUtils() {
-    }
-
     private static Sound getClickSound() {
         Sound s = GuiLibBukkit.getInstance().getSoundConfigFile().getOnClick();
         return s != null ? s : Sound.BLOCK_NOTE_BLOCK_HAT;

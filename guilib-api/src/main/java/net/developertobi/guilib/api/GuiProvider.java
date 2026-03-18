@@ -4,9 +4,6 @@ public class GuiProvider {
 
     private static GuiApi api;
 
-    private GuiProvider() {
-    }
-
     public static void register(GuiApi api) {
         GuiProvider.api = api;
     }

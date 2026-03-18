@@ -16,9 +16,6 @@ import java.nio.file.Paths;
 
 public final class FileUtils {
 
-    private FileUtils() {
-    }
-
     public static <T> T read(File file, Class<T> clazz) {
         try {
             Gson gson = GuiLibBukkit.getGson();
