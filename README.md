@@ -1,6 +1,6 @@
 # GuiLib API Documentation
 
-A comprehensive Kotlin/Java library for creating GUIs in Bukkit/Spigot/Paper Minecraft servers.
+A comprehensive Java library for creating GUIs in Bukkit/Spigot/Paper Minecraft servers.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ A comprehensive Kotlin/Java library for creating GUIs in Bukkit/Spigot/Paper Min
   - [GuiProvider](#guiprovider)
   - [GuiItem](#guiitem)
   - [GuiPagination](#guipagination)
-  - [Extension Functions](#extension-functions)
+  - [Helper Methods](#helper-methods)
 - [Examples](#examples)
 - [Best Practices](#best-practices)
 
@@ -31,24 +31,23 @@ The GuiLib API provides a modern, type-safe, and flexible solution for creating 
 - Flexible item positioning
 - Runtime item modifications
 - Confirmation dialogs
-- Navigation between inventories
+- Navigation between GUIs
 
 ## Installation
 
-The library is distributed as a Gradle dependency via GitHub Packages. Add the repository and dependency to your `build.gradle.kts`:
+The library is distributed as a Gradle dependency via GitHub Packages. Add the repository and dependency to your `build.gradle`:
 
-```kotlin
+```groovy
 repositories {
     maven {
         name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/DeveloperTobi-Server/guilib")
-        // No authentication required for public packages
+        url = "https://maven.pkg.github.com/DeveloperTobi-Server/guilib"
     }
     mavenCentral()
 }
 
 dependencies {
-    implementation("net.developertobi.guilib:guilib-api:1.0-SNAPSHOT")
+    implementation "net.developertobi.guilib:guilib-api:1.0-SNAPSHOT"
 }
 ```
 
@@ -58,34 +57,30 @@ dependencies {
 
 ### Creating a Simple GUI
 
-```kotlin
-import net.developertobi.guilib.api.GuiHelper
-import net.developertobi.guilib.api.GuiProvider
-import net.developertobi.guilib.api.gui.Gui
-import net.developertobi.guilib.api.gui.GuiProperties
-import net.developertobi.guilib.api.gui.GuiController
-import net.developertobi.guilib.api.item.GuiItem
-import net.kyori.adventure.text.Component
-import org.bukkit.Material
-import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
+```java
+import net.developertobi.guilib.api.GuiHelper;
+import net.developertobi.guilib.api.GuiProvider;
+import net.developertobi.guilib.api.gui.Gui;
+import net.developertobi.guilib.api.gui.GuiProperties;
+import net.developertobi.guilib.api.gui.GuiController;
+import net.developertobi.guilib.api.item.GuiItem;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
-@GuiProperties(
-    id = "my-inventory",
-    rows = 3,
-    columns = 9
-)
-class MyGuiProvider : Gui {
-    override fun init(player: Player, controller: GuiController) {
-        val item = GuiItem.of(ItemStack(Material.DIAMOND)) { pos, guiItem, event ->
-            player.sendMessage("Diamond was clicked!")
-        }
-        controller.setItem(1, 1, item)
+@GuiProperties(id = "my-gui", rows = 3, columns = 9)
+public class MyGuiProvider implements Gui {
+    @Override
+    public void init(Player player, GuiController controller) {
+        GuiItem item = GuiProvider.getApi().of(new ItemStack(Material.DIAMOND), (pos, guiItem, event) ->
+            player.sendMessage("Diamond was clicked!"));
+        controller.setItem(1, 1, item);
     }
 }
 
-val provider = MyGuiProvider()
-GuiHelper.openStaticGui(player, Component.text("My GUI"), provider)
+MyGuiProvider provider = new MyGuiProvider();
+GuiHelper.openStaticGui(player, Component.text("My GUI"), provider);
 ```
 
 ## Core Concepts
@@ -114,68 +109,68 @@ A `GuiView` represents a complete GUI with all its properties and functions.
 
 The central class for accessing the API.
 
-```kotlin
-object GuiProvider {
-    fun register(api: GuiApi)
-    fun getApi(): GuiApi
+```java
+public class GuiProvider {
+    public static void register(GuiApi api)
+    public static GuiApi getApi()
 }
 ```
 
 **Usage:**
-```kotlin
+```java
 // Register API (usually handled by the plugin framework)
-GuiProvider.register(apiInstance)
+GuiProvider.register(apiInstance);
 
 // Access API
-val api = GuiProvider.getApi()
+GuiApi api = GuiProvider.getApi();
 ```
 
 ### GuiHandler
 
-Manages all inventories for players.
+Manages all GUIs for players.
 
 #### Methods
 
 ##### `openStaticGui`
 Opens a static GUI (recreated each time it is opened).
 
-```kotlin
-fun GuiHelper.openStaticGui(holder: Player, title: Component, provider: Gui)
+```java
+GuiHelper.openStaticGui(holder, title, provider);
 ```
 
 ##### `cacheGui`
 Creates and caches a GUI for a player.
 
-```kotlin
-fun GuiHelper.cacheGui(holder: Player, title: Component, provider: Gui)
+```java
+GuiHelper.cacheGui(holder, title, provider);
 ```
 
 ##### `getGui`
 Retrieves a cached GUI.
 
-```kotlin
-fun GuiHelper.getGui(holder: Player, name: String): GuiView?
+```java
+GuiView view = GuiHelper.getGui(holder, name);
 ```
 
 ##### `updateCachedGui`
 Updates a cached GUI.
 
-```kotlin
-fun GuiHelper.updateCachedGui(holder: Player, guiId: String)
+```java
+GuiHelper.updateCachedGui(holder, guiId);
 ```
 
 ##### `removeCachedGui`
 Removes a cached GUI.
 
-```kotlin
-fun GuiHelper.removeCachedGui(holder: Player, gui: GuiView)
+```java
+GuiHelper.removeCachedGui(holder, gui);
 ```
 
-##### `clearCachedInventories`
-Clears all cached inventories of a player.
+##### `clearCachedGuis`
+Clears all cached GUIs of a player.
 
-```kotlin
-fun clearCachedInventories(holder: Player)
+```java
+GuiHelper.clearCachedGuis(holder);
 ```
 
 ### GuiView
@@ -196,64 +191,64 @@ Represents a complete GUI.
 #### Methods
 
 ##### `open`
-Opens the inventory for a player.
+Opens the GUI for a player.
 
-```kotlin
-fun open(holder: Player)
-fun open(holder: Player, pageId: Int)
-fun open(holder: Player, forceSyncOpening: Boolean)
-fun open(holder: Player, pageId: Int, forceSyncOpening: Boolean)
+```java
+void open(Player holder)
+void open(Player holder, int pageId)
+void open(Player holder, boolean forceSyncOpening)
+void open(Player holder, int pageId, boolean forceSyncOpening)
 ```
 
 ##### `close`
-Closes the inventory for a player.
+Closes the GUI for a player.
 
-```kotlin
-fun close(holder: Player)
-fun close(holder: Player, forceSyncClosing: Boolean)
+```java
+void close(Player holder)
+void close(Player holder, boolean forceSyncClosing)
 ```
 
 ### GuiController
 
-Central control for item management in the inventory.
+Central control for item management in the GUI.
 
 #### Properties
 
 - `provider: Gui` - The associated provider
 - `properties: GuiProperties` - Properties of the GUI
-- `slotCount: Int` - Total number of slots
-- `isCloseable: Boolean` - Whether the inventory is closeable
-- `contents: MutableMap<GuiPos, GuiItem?>` - All items in the inventory
+- `slotCount: int` - Total number of slots
+- `isCloseable: Boolean` - Whether the GUI is closeable
+- `contents: MutableMap<GuiPos, GuiItem?>` - All items in the GUI
 - `pagination: GuiPagination?` - Optional: Pagination object
-- `rawInventory: Inventory?` - The raw Bukkit inventory
+- `rawInventory: Inventory?` - The raw Bukkit inventory (internal)
 
 #### Methods
 
 ##### Item Management
 
-```kotlin
+```java
 // Set item at position
-fun setItem(pos: GuiPos, item: GuiItem)
-fun setItem(row: Int, column: Int, item: GuiItem)
+void setItem(GuiPos pos, GuiItem item)
+void setItem(int row, int column, GuiItem item)
 
 // Add item
-fun addItem(item: GuiItem)
-fun addItemToRandomPosition(item: GuiItem)
+void addItem(GuiItem item)
+void addItemToRandomPosition(GuiItem item)
 
 // Remove item
-fun removeItem(name: String)
-fun removeItem(type: Material)
+void removeItem(String name)
+void removeItem(Material type)
 
 // Set placeholder
-fun placeholder(pos: GuiPos, type: Material)
-fun placeholder(row: Int, column: Int, type: Material)
+void placeholder(GuiPos pos, Material type)
+void placeholder(int row, int column, Material type)
 ```
 
 ##### Fill Methods
 
-```kotlin
-fun fill(fillType: FillType, item: GuiItem, vararg positions: GuiPos)
-fun clearPosition(pos: GuiPos)
+```java
+void fill(FillType fillType, GuiItem item, GuiPos... positions)
+void clearPosition(GuiPos pos)
 ```
 
 **FillType Enum:**
@@ -267,48 +262,45 @@ fun clearPosition(pos: GuiPos)
 
 ##### Query Methods
 
-```kotlin
-fun isPositionTaken(pos: GuiPos): Boolean
-fun getPositionOfItem(item: GuiItem): GuiPos?
-fun getFirstEmptyPosition(): GuiPos?
-fun getItem(pos: GuiPos): GuiItem?
-fun getItem(row: Int, column: Int): GuiItem?
-fun findFirstItemWithType(type: Material): GuiItem?
+```java
+boolean isPositionTaken(GuiPos pos)
+GuiPos getPositionOfItem(GuiItem item)
+GuiPos getFirstEmptyPosition()
+GuiItem getItem(GuiPos pos)
+GuiItem getItem(int row, int column)
+GuiItem findFirstItemWithType(Material type)
 ```
 
 ##### Pagination
 
-```kotlin
-fun createPagination(): GuiPagination
+```java
+GuiPagination createPagination()
 ```
 
 ##### GUI Dimensions
 
-```kotlin
-fun getGuiId(): String
-fun getRows(): Int
-fun getColumns(): Int
+```java
+String getGuiId()
+int getRows()
+int getColumns()
 ```
 
 ### Gui
 
 Interface for GUI initialization.
 
-```kotlin
-interface Gui {
-    fun init(player: Player, controller: GuiController)
+```java
+public interface Gui {
+    void init(Player player, GuiController controller);
 }
 ```
 
 **Example:**
-```kotlin
-@GuiProperties(
-    id = "my-gui",
-    rows = 3,
-    columns = 9
-)
-class MyGuiProvider : Gui {
-    override fun init(player: Player, controller: GuiController) {
+```java
+@GuiProperties(id = "my-gui", rows = 3, columns = 9)
+public class MyGuiProvider implements Gui {
+    @Override
+    public void init(Player player, GuiController controller) {
         // GUI logic here
     }
 }
@@ -320,38 +312,38 @@ Represents an item in the GUI with optional action.
 
 #### Creation
 
-```kotlin
+```java
 // Item without action
-GuiItem.of(itemStack)
+GuiProvider.getApi().of(itemStack)
 
 // Item with action
-GuiItem.of(itemStack) { pos, guiItem, event ->
+GuiProvider.getApi().of(itemStack, (pos, guiItem, event) -> {
     // Execute action
-}
+});
 
 // Placeholder
-GuiItem.placeholder(Material.GRAY_STAINED_GLASS_PANE)
+GuiProvider.getApi().placeholder(Material.GRAY_STAINED_GLASS_PANE);
 
 // Navigation item
-GuiItem.navigator(itemStack, "gui-key")
+GuiProvider.getApi().navigator(itemStack, "gui-key");
 
 // Pagination items
-GuiItem.nextPage(itemStack, pagination)
-GuiItem.previousPage(itemStack, pagination)
+GuiProvider.getApi().nextPage(itemStack, pagination);
+GuiProvider.getApi().previousPage(itemStack, pagination);
 ```
 
 #### Item Modification
 
 Items can be modified at runtime:
 
-```kotlin
-guiItem.update(controller, GuiItem.Modification.TYPE, Material.DIAMOND)
-guiItem.update(controller, GuiItem.Modification.DISPLAY_NAME, Component.text("New Name"))
-guiItem.update(controller, GuiItem.Modification.LORE, mutableListOf(Component.text("Lore")))
-guiItem.update(controller, GuiItem.Modification.AMOUNT, 5)
-guiItem.update(controller, GuiItem.Modification.INCREMENT, 1)
-guiItem.update(controller, GuiItem.Modification.ENCHANTMENTS, ItemEnchantment.of(...))
-guiItem.update(controller, GuiItem.Modification.GLOWING, true)
+```java
+guiItem.update(controller, GuiItem.Modification.TYPE, Material.DIAMOND);
+guiItem.update(controller, GuiItem.Modification.DISPLAY_NAME, Component.text("New Name"));
+guiItem.update(controller, GuiItem.Modification.LORE, List.of(Component.text("Lore")));
+guiItem.update(controller, GuiItem.Modification.AMOUNT, 5);
+guiItem.update(controller, GuiItem.Modification.INCREMENT, 1);
+guiItem.update(controller, GuiItem.Modification.ENCHANTMENTS, ItemEnchantment.of(enchantment, 1, true));
+guiItem.update(controller, GuiItem.Modification.GLOWING, true);
 ```
 
 **Modification Enum:**
@@ -379,70 +371,70 @@ Manages page navigation for large item lists.
 
 #### Methods
 
-```kotlin
+```java
 // Page information
-fun getLastPageId(): Int
-fun getPageAmount(): Int
-fun getCurrentPageId(): Int
-fun isFirstPage(): Boolean
-fun isLastPage(): Boolean
+int getLastPageId()
+int getPageAmount()
+int getCurrentPageId()
+boolean isFirstPage()
+boolean isLastPage()
 
 // Navigation
-fun page(pageId: Int)
-fun toFirstPage()
-fun toLastPage()
-fun toNextPage()
-fun toPreviousPage()
+void page(int pageId)
+void toFirstPage()
+void toLastPage()
+void toNextPage()
+void toPreviousPage()
 
 // Configuration
-fun setItemField(startRow: Int, startColumn: Int, endRow: Int, endColumn: Int)
-fun distributeItems(items: List<GuiItem>)
-fun limitItemsPerPage(amount: Int)
-fun refreshPage()
+void setItemField(int startRow, int startColumn, int endRow, int endColumn)
+void distributeItems(List<GuiItem> items)
+void limitItemsPerPage(int amount)
+void refreshPage()
 ```
 
-### Extension Functions
+### Helper Methods
 
-The library provides convenient extension functions for easier access:
+The library provides convenient static methods via `GuiHelper`:
 
-```kotlin
+```java
 // Open static GUI
-GuiHelper.openStaticGui(player, title, provider)
+GuiHelper.openStaticGui(player, title, provider);
 
 // Open GUI (from cache)
-GuiHelper.openGui(player, "gui-key")
+GuiHelper.openGui(player, "gui-key");
 
 // Get GUI from cache
-GuiHelper.getGui(player, "gui-key")
+GuiView gui = GuiHelper.getGui(player, "gui-key");
 
 // Cache GUI
-GuiHelper.cacheGui(player, title, provider)
+GuiHelper.cacheGui(player, title, provider);
 
 // Remove cached GUI
-GuiHelper.removeCachedGui(player, gui)
+GuiHelper.removeCachedGui(player, gui);
 
 // Clear all cached GUIs
-GuiHelper.clearCachedGuis(player)
+GuiHelper.clearCachedGuis(player);
 
 // Update cached GUI
-GuiHelper.updateCachedGui(player, "gui-key")
+GuiHelper.updateCachedGui(player, "gui-key");
 ```
 
 ### GuiApi
 
 Main API interface with additional functions.
 
-```kotlin
-interface GuiApi {
-    val guiHandler: GuiHandler
+```java
+public interface GuiApi {
+    GuiHandler getGuiHandler();
     
-    fun openConfirmationGui(
-        holder: Player,
-        title: Component,
-        displayItem: ItemStack,
-        onAccept: ((ItemStack) -> Unit),
-        onDeny: ((ItemStack) -> Unit)
-    )
+    void openConfirmationGui(
+        Player holder,
+        Component title,
+        ItemStack displayItem,
+        Consumer<ItemStack> onAccept,
+        Consumer<ItemStack> onDeny
+    );
 }
 ```
 
@@ -450,7 +442,7 @@ interface GuiApi {
 
 Annotation for GUI configuration.
 
-```kotlin
+```java
 @GuiProperties(
     id = "my-gui",
     rows = 3,
@@ -462,7 +454,7 @@ Annotation for GUI configuration.
     playSoundOnClose = true,
     playSoundOnPageSwitch = true
 )
-class MyGuiProvider : Gui {
+public class MyGuiProvider implements Gui {
     // ...
 }
 ```
@@ -471,233 +463,202 @@ class MyGuiProvider : Gui {
 
 Represents a position in the GUI (row, column).
 
-```kotlin
-data class GuiPos(val row: Int, val column: Int)
+```java
+public record GuiPos(int row, int column) {
+    public static GuiPos of(int row, int column) {
+        return new GuiPos(row, column);
+    }
+}
 
 // Creation
 GuiPos.of(row, column)
-GuiPos(row, column)
+new GuiPos(row, column)
 ```
 
 ### ItemEnchantment
 
 Helper class for enchantments.
 
-```kotlin
-data class ItemEnchantment(
-    val enchantment: Enchantment,
-    val strength: Int,
-    val isActive: Boolean
-)
-
-// Creation
-ItemEnchantment.of(enchantment, strength, isActive)
+```java
+public record ItemEnchantment(Enchantment enchantment, int strength, boolean isActive) {
+    public static ItemEnchantment of(Enchantment enchantment, int strength, boolean isActive) {
+        return new ItemEnchantment(enchantment, strength, isActive);
+    }
+}
 ```
 
 ## Examples
 
 ### Example 1: Simple Menu
 
-```kotlin
-@GuiProperties(
-    id = "main-menu",
-    rows = 3,
-    columns = 9
-)
-class MainMenuProvider : Gui {
-    override fun init(player: Player, controller: GuiController) {
+```java
+@GuiProperties(id = "main-menu", rows = 3, columns = 9)
+public class MainMenuProvider implements Gui {
+    @Override
+    public void init(Player player, GuiController controller) {
         // Header
-        val header = GuiItem.placeholder(Material.BLUE_STAINED_GLASS_PANE)
-        controller.fill(GuiController.FillType.TOP_BORDER, header)
+        GuiItem header = GuiProvider.getApi().placeholder(Material.BLUE_STAINED_GLASS_PANE);
+        controller.fill(GuiController.FillType.TOP_BORDER, header);
         
         // Items
-        val shopItem = GuiItem.of(ItemStack(Material.EMERALD)) { _, _, _ ->
-            player.sendMessage("Shop opened!")
+        GuiItem shopItem = GuiProvider.getApi().of(new ItemStack(Material.EMERALD), (pos, guiItem, event) -> {
+            player.sendMessage("Shop opened!");
             // Open shop...
-        }
-        controller.setItem(2, 2, shopItem)
+        });
+        controller.setItem(2, 2, shopItem);
         
-        val settingsItem = GuiItem.of(ItemStack(Material.REDSTONE)) { _, _, _ ->
-            player.sendMessage("Settings opened!")
+        GuiItem settingsItem = GuiProvider.getApi().of(new ItemStack(Material.REDSTONE), (pos, guiItem, event) -> {
+            player.sendMessage("Settings opened!");
             // Open settings...
-        }
-        controller.setItem(2, 6, settingsItem)
+        });
+        controller.setItem(2, 6, settingsItem);
     }
 }
 
-val menuProvider = MainMenuProvider()
-GuiHelper.openStaticGui(player, Component.text("Main Menu"), menuProvider)
+MainMenuProvider menuProvider = new MainMenuProvider();
+GuiHelper.openStaticGui(player, Component.text("Main Menu"), menuProvider);
 ```
 
 ### Example 2: GUI with Pagination
 
-```kotlin
-@GuiProperties(
-    id = "item-list",
-    rows = 5,
-    columns = 9
-)
-class ItemListProvider : Gui {
-    override fun init(player: Player, controller: GuiController) {
-        val pagination = controller.createPagination()
-        pagination.setItemField(1, 1, 3, 7) // Items in this area
-        pagination.limitItemsPerPage(21)
+```java
+import java.util.ArrayList;
+import java.util.List;
+import net.developertobi.guilib.api.pagination.GuiPagination;
+
+@GuiProperties(id = "item-list", rows = 5, columns = 9)
+public class ItemListProvider implements Gui {
+    @Override
+    public void init(Player player, GuiController controller) {
+        GuiPagination pagination = controller.createPagination();
+        pagination.setItemField(1, 1, 3, 7); // Items in this area
+        pagination.limitItemsPerPage(21);
         
         // Create items
-        val items = (1..50).map { index ->
-            GuiItem.of(ItemStack(Material.DIAMOND, index)) { _, _, _ ->
-                player.sendMessage("Item $index clicked!")
-            }
+        List<GuiItem> items = new ArrayList<>();
+        for (int index = 1; index <= 50; index++) {
+            int i = index;
+            items.add(GuiProvider.getApi().of(new ItemStack(Material.DIAMOND, index), (pos, guiItem, event) ->
+                player.sendMessage("Item " + i + " clicked!")));
         }
         
-        pagination.distributeItems(items)
+        pagination.distributeItems(items);
         
         // Navigation buttons
         if (!pagination.isFirstPage()) {
-            val prevButton = GuiItem.previousPage(
-                ItemStack(Material.ARROW),
-                pagination
-            )
-            controller.setItem(4, 1, prevButton)
+            GuiItem prevButton = GuiProvider.getApi().previousPage(new ItemStack(Material.ARROW), pagination);
+            controller.setItem(4, 1, prevButton);
         }
         
         if (!pagination.isLastPage()) {
-            val nextButton = GuiItem.nextPage(
-                ItemStack(Material.ARROW),
-                pagination
-            )
-            controller.setItem(4, 9, nextButton)
+            GuiItem nextButton = GuiProvider.getApi().nextPage(new ItemStack(Material.ARROW), pagination);
+            controller.setItem(4, 9, nextButton);
         }
     }
 }
 
-val listProvider = ItemListProvider()
-GuiHelper.openStaticGui(player, Component.text("Item List"), listProvider)
+ItemListProvider listProvider = new ItemListProvider();
+GuiHelper.openStaticGui(player, Component.text("Item List"), listProvider);
 ```
 
 ### Example 3: Cached GUI
 
-```kotlin
-@GuiProperties(
-    id = "cached-gui",
-    rows = 3,
-    columns = 9
-)
-class CachedGuiProvider : Gui {
-    override fun init(player: Player, controller: GuiController) {
-        val item = GuiItem.of(ItemStack(Material.DIAMOND)) { _, guiItem, _ ->
+```java
+@GuiProperties(id = "cached-gui", rows = 3, columns = 9)
+public class CachedGuiProvider implements Gui {
+    @Override
+    public void init(Player player, GuiController controller) {
+        GuiItem item = GuiProvider.getApi().of(new ItemStack(Material.DIAMOND), (pos, guiItem, event) -> {
             // Modify item at runtime
-            guiItem.update(controller, GuiItem.Modification.AMOUNT, 
-                (guiItem.item.amount + 1).coerceAtMost(64))
-        }
-        controller.setItem(2, 5, item)
+            int newAmount = Math.min(guiItem.getItem().getAmount() + 1, 64);
+            guiItem.update(controller, GuiItem.Modification.AMOUNT, newAmount);
+        });
+        controller.setItem(2, 5, item);
     }
 }
 
 // Create and cache GUI
-val cachedProvider = CachedGuiProvider()
-GuiHelper.cacheGui(player, Component.text("Cached GUI"), cachedProvider)
+CachedGuiProvider cachedProvider = new CachedGuiProvider();
+GuiHelper.cacheGui(player, Component.text("Cached GUI"), cachedProvider);
 
 // Open later
-GuiHelper.openGui(player, "cached-gui")
+GuiHelper.openGui(player, "cached-gui");
 
 // Update
-GuiHelper.updateCachedGui(player, "cached-gui")
+GuiHelper.updateCachedGui(player, "cached-gui");
 ```
 
 ### Example 4: Confirmation Dialog
 
-```kotlin
+```java
 GuiProvider.getApi().openConfirmationGui(
     player,
     Component.text("Confirm Delete"),
-    ItemStack(Material.TNT),
-    onAccept = { item ->
-        player.sendMessage("Deleted!")
+    new ItemStack(Material.TNT),
+    item -> {
+        player.sendMessage("Deleted!");
         // Delete logic
     },
-    onDeny = { item ->
-        player.sendMessage("Cancelled!")
-    }
-)
+    item -> player.sendMessage("Cancelled!")
+);
 ```
 
-### Example 5: Navigation Between Inventories
+### Example 5: Navigation Between GUIs
 
-```kotlin
+```java
 // Main menu
-@GuiProperties(
-    id = "main-menu",
-    rows = 3,
-    columns = 9
-)
-class MainMenuProvider : Gui {
-    override fun init(player: Player, controller: GuiController) {
-        val shopButton = GuiItem.navigator(
-            ItemStack(Material.EMERALD),
-            "shop-inventory"
-        )
-        controller.setItem(2, 5, shopButton)
+@GuiProperties(id = "main-menu", rows = 3, columns = 9)
+public class MainMenuProvider implements Gui {
+    @Override
+    public void init(Player player, GuiController controller) {
+        GuiItem shopButton = GuiProvider.getApi().navigator(new ItemStack(Material.EMERALD), "shop-gui");
+        controller.setItem(2, 5, shopButton);
     }
 }
 
-val mainMenuProvider = MainMenuProvider()
-GuiHelper.cacheGui(player, Component.text("Main Menu"), mainMenuProvider)
+MainMenuProvider mainMenuProvider = new MainMenuProvider();
+GuiHelper.cacheGui(player, Component.text("Main Menu"), mainMenuProvider);
 
 // Shop GUI
-@GuiProperties(
-    id = "shop-inventory",
-    rows = 5,
-    columns = 9
-)
-class ShopProvider : Gui {
-    override fun init(player: Player, controller: GuiController) {
-        val backButton = GuiItem.navigator(
-            ItemStack(Material.ARROW),
-            "main-menu"
-        )
-        controller.setItem(4, 1, backButton)
+@GuiProperties(id = "shop-gui", rows = 5, columns = 9)
+public class ShopProvider implements Gui {
+    @Override
+    public void init(Player player, GuiController controller) {
+        GuiItem backButton = GuiProvider.getApi().navigator(new ItemStack(Material.ARROW), "main-menu");
+        controller.setItem(4, 1, backButton);
         
         // Shop items...
     }
 }
 
-val shopProvider = ShopProvider()
-GuiHelper.cacheGui(player, Component.text("Shop"), shopProvider)
+ShopProvider shopProvider = new ShopProvider();
+GuiHelper.cacheGui(player, Component.text("Shop"), shopProvider);
 
-// Open inventories
-GuiHelper.openGui(player, "main-menu")
+// Open GUIs
+GuiHelper.openGui(player, "main-menu");
 ```
 
 ### Example 6: Runtime Item Modification
 
-```kotlin
-@GuiProperties(
-    id = "modification-inventory",
-    rows = 3,
-    columns = 9
-)
-class ModificationGuiProvider : Gui {
-    override fun init(player: Player, controller: GuiController) {
-        val item = GuiItem.of(ItemStack(Material.DIAMOND)) { _, guiItem, _ ->
+```java
+@GuiProperties(id = "modification-gui", rows = 3, columns = 9)
+public class ModificationGuiProvider implements Gui {
+    @Override
+    public void init(Player player, GuiController controller) {
+        GuiItem item = GuiProvider.getApi().of(new ItemStack(Material.DIAMOND), (pos, guiItem, event) -> {
             // Various modifications
-            guiItem.update(controller, GuiItem.Modification.AMOUNT, 5)
-            guiItem.update(controller, GuiItem.Modification.DISPLAY_NAME, 
-                Component.text("Modified Item"))
-            guiItem.update(controller, GuiItem.Modification.GLOWING, true)
+            guiItem.update(controller, GuiItem.Modification.AMOUNT, 5);
+            guiItem.update(controller, GuiItem.Modification.DISPLAY_NAME, Component.text("Modified Item"));
+            guiItem.update(controller, GuiItem.Modification.GLOWING, true);
             
-            val enchantment = ItemEnchantment.of(
-                Enchantment.UNBREAKING, 
-                1, 
-                true
-            )
-            guiItem.update(controller, GuiItem.Modification.ENCHANTMENTS, enchantment)
-        }
-        controller.setItem(2, 5, item)
+            ItemEnchantment enchantment = ItemEnchantment.of(Enchantment.UNBREAKING, 1, true);
+            guiItem.update(controller, GuiItem.Modification.ENCHANTMENTS, enchantment);
+        });
+        controller.setItem(2, 5, item);
     }
 }
 
-val provider = ModificationGuiProvider()
+ModificationGuiProvider provider = new ModificationGuiProvider();
 ```
 
 ## Best Practices
@@ -725,7 +686,7 @@ val provider = ModificationGuiProvider()
 6. **Code Organization:**
    - **IMPORTANT:** Gui must always be implemented as a class, not as an anonymous object
    - Always use the `@GuiProperties` annotation for configuration
-   - Create separate provider classes for complex inventories
+   - Create separate provider classes for complex GUIs
    - The `id` in `@GuiProperties` must be unique and is used for caching
 
 ## License
