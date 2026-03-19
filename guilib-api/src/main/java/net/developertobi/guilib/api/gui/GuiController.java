@@ -36,6 +36,11 @@ public interface GuiController {
     void placeholder(GuiPos pos, Material type);
     void placeholder(int row, int column, Material type);
 
+    /** Marks a region as input – players can place and take items there. */
+    void setInputArea(GuiPos start, GuiPos end);
+    /** Returns true if the position is within an input area. */
+    boolean isInInputArea(GuiPos pos);
+
     void setItem(GuiPos pos, GuiItem item);
     void setItem(int row, int column, GuiItem item);
     void addItem(GuiItem item);

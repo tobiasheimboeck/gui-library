@@ -51,6 +51,10 @@ public class GuiPlayerListener implements Listener {
         if (gui == null) return;
         var position = MathUtils.slotToPosition(event.getSlot(), gui.getColumns());
 
+        if (gui.getController().isInInputArea(position)) {
+            return;
+        }
+
         event.setCancelled(true);
 
         GuiItem currentItem = gui.getController().getItem(position);

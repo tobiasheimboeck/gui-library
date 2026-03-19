@@ -37,8 +37,6 @@ public class GuiLibBukkit extends JavaPlugin {
         GuiProvider.register(guiApi);
 
         new GuiPlayerListener(this);
-
-        Bukkit.getConsoleSender().sendMessage(Component.text("GuiLib enabled", NamedTextColor.GREEN));
     }
 
     private SoundConfigFile createOrLoadSoundConfigFile() {

@@ -29,6 +29,8 @@ public class GuiControllerImpl implements GuiController {
     private String overriddenGuiId;
     private int overriddenRows;
     private int overriddenColumns;
+    private GuiPos inputAreaStart;
+    private GuiPos inputAreaEnd;
 
     public GuiControllerImpl(Gui provider) {
         this.provider = provider;
@@ -146,6 +148,23 @@ public class GuiControllerImpl implements GuiController {
     @Override
     public void placeholder(int row, int column, Material type) {
         setItem(row, column, GuiProvider.getApi().placeholder(type));
+    }
+
+    @Override
+    public void setInputArea(GuiPos start, GuiPos end) {
+        this.inputAreaStart = start;
+        this.inputAreaEnd = end;
+    }
+
+    @Override
+    public boolean isInInputArea(GuiPos pos) {
+        if (inputAreaStart == null || inputAreaEnd == null) return false;
+        int minRow = Math.min(inputAreaStart.row(), inputAreaEnd.row());
+        int maxRow = Math.max(inputAreaStart.row(), inputAreaEnd.row());
+        int minCol = Math.min(inputAreaStart.column(), inputAreaEnd.column());
+        int maxCol = Math.max(inputAreaStart.column(), inputAreaEnd.column());
+        return pos.row() >= minRow && pos.row() <= maxRow
+                && pos.column() >= minCol && pos.column() <= maxCol;
     }
 
     @Override

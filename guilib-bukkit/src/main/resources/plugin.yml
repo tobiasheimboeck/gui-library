@@ -4,5 +4,3 @@ main: net.developertobi.guilib.bukkit.GuiLibBukkit
 api-version: "1.21.11"
 authors:
   - TGamings
-depend:
-  - dependencies

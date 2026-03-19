@@ -35,10 +35,10 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/DeveloperTobi-Server/guilib")
+            url = uri("https://maven.pkg.github.com/tobiasheimboeck/gui-library")
             credentials {
-                username = localProperties.getProperty("gpr.user") ?: System.getenv("GPR_USER") ?: ""
-                password = localProperties.getProperty("gpr.key") ?: System.getenv("GPR_KEY") ?: ""
+                username = localProperties.getProperty("gpr.user")
+                password = localProperties.getProperty("gpr.key")
             }
         }
     }
